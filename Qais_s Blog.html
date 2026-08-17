@@ -744,7 +744,7 @@ $(document).on("keydown", ".answer-input", function (event) {
 就算我不在了，真相与正义也绝不会被掩盖
 总有一天，会有其他的人重新打开这个网页，继续我未能完成的工作
 
-我为每个访问过的文档都设置了关键词，在此输入查找
+我为每个访问过的文档都设置了[[关键词]]，在此输入查找
 &lt;input
 	id=&quot;searchInput&quot;
 	type=&quot;text&quot;
@@ -785,7 +785,132 @@ $(document).off(&quot;keydown.search&quot;).on(
 
 &lt;&lt;link &quot;返回先前的页面&quot;&gt;&gt;&lt;&lt;run Engine.backward()&gt;&gt;&lt;&lt;/link&gt;&gt;
 
-</tw-passagedata><tw-passagedata pid="2" name="Search" tags="" position="500,300" size="100,100">&lt;&lt;if $keyword is &quot;盖斯&quot;&gt;&gt;
+
+
+
+
+&lt;&lt;script&gt;&gt;
+(function () {
+    if (State.passage !== &quot;Start&quot;) return;
+    var oldSpirit = document.getElementById(&quot;spirit&quot;);
+    var oldDialog = document.getElementById(&quot;spirit-dialog&quot;);
+    if (oldSpirit) oldSpirit.remove();
+    if (oldDialog) oldDialog.remove();
+    var image = &quot;image/hedgegoat.gif&quot;;
+    var size = 80;
+    var minSize = 55;
+    var minX = 75;
+    var maxX = 88;
+    var minY = 72;
+    var maxY = 87;
+    var speed = 0.035;
+    var dialogWidth = 280;
+    var dialogues = [
+        &quot;............&quot;,
+        &quot;上方搜索栏中输入关键词&lt;br&gt;回车确认查找相关内容&quot;,
+        &quot;点击蓝色的跳转按钮&lt;br&gt;可以前往新的页面&quot;,
+        &quot;访问过的页面会被记录&lt;br&gt;并在搜索结果中更新&quot;,
+        &quot;调查过程中，发现的深蓝提示词&lt;br&gt;可以输入下方的对话框&quot;,
+        &quot;所有的图像都可以点击.......&lt;br&gt;某些页面，需要特定条件解锁&quot;,
+        &quot;最后...愿你在这个疯狂的世界中&lt;br&gt;找到你所渴望的正义.......&quot;
+    ];
+    var spirit = document.createElement(&quot;img&quot;);
+    spirit.src = image;
+    spirit.id = &quot;spirit&quot;;
+    var x = Math.random() * (maxX - minX) + minX;
+    var y = Math.random() * (maxY - minY) + minY;
+    var vx = (Math.random() - 0.5) * speed;
+    var vy = (Math.random() - 0.5) * speed;
+    var dialogueIndex = 0;
+    var actualSize = Math.min(size, Math.max(minSize, window.innerWidth * 0.055));
+    spirit.style.position = &quot;fixed&quot;;
+    spirit.style.width = actualSize + &quot;px&quot;;
+    spirit.style.height = &quot;auto&quot;;
+    spirit.style.imageRendering = &quot;auto&quot;;
+    spirit.style.left = x + &quot;vw&quot;;
+    spirit.style.top = y + &quot;vh&quot;;
+    spirit.style.cursor = &quot;pointer&quot;;
+    spirit.style.zIndex = &quot;9999&quot;;
+    document.body.appendChild(spirit);
+    function moveSpirit() {
+        if (State.passage !== &quot;Start&quot;) {
+            spirit.remove();
+            var dialog = document.getElementById(&quot;spirit-dialog&quot;);
+            if (dialog) dialog.remove();
+            return;
+        }
+        vx += (Math.random() - 0.5) * 0.0008;
+        vy += (Math.random() - 0.5) * 0.0008;
+        var currentSpeed = Math.sqrt(vx * vx + vy * vy);
+        if (currentSpeed &gt; speed) {
+            vx = vx / currentSpeed * speed;
+            vy = vy / currentSpeed * speed;
+        }
+        if (currentSpeed &lt; speed * 0.5) {
+            vx = vx / Math.max(currentSpeed, 0.001) * speed * 0.5;
+            vy = vy / Math.max(currentSpeed, 0.001) * speed * 0.5;
+        }
+        x += vx;
+        y += vy;
+        if (x &lt;= minX) {
+            x = minX;
+            vx = Math.abs(vx);
+        }
+        if (x &gt;= maxX) {
+            x = maxX;
+            vx = -Math.abs(vx);
+        }
+        if (y &lt;= minY) {
+            y = minY;
+            vy = Math.abs(vy);
+        }
+        if (y &gt;= maxY) {
+            y = maxY;
+            vy = -Math.abs(vy);
+        }
+        spirit.style.left = x + &quot;vw&quot;;
+        spirit.style.top = y + &quot;vh&quot;;
+        var dialog = document.getElementById(&quot;spirit-dialog&quot;);
+        if (dialog) {
+            var rect = spirit.getBoundingClientRect();
+            dialog.style.left = (rect.left + rect.width / 2) + &quot;px&quot;;
+            dialog.style.top = (rect.top - dialog.offsetHeight - 12) + &quot;px&quot;;
+        }
+        requestAnimationFrame(moveSpirit);
+    }
+    spirit.onclick = function () {
+        var old = document.getElementById(&quot;spirit-dialog&quot;);
+        if (old) old.remove();
+        if (dialogueIndex &lt; dialogues.length) {
+            var dialog = document.createElement(&quot;div&quot;);
+            dialog.id = &quot;spirit-dialog&quot;;
+            dialog.innerHTML = dialogues[dialogueIndex];
+            dialog.style.position = &quot;fixed&quot;;
+            dialog.style.transform = &quot;translateX(-50%)&quot;;
+            dialog.style.width = dialogWidth + &quot;px&quot;;
+            dialog.style.maxWidth = &quot;calc(100vw - 30px)&quot;;
+            dialog.style.boxSizing = &quot;border-box&quot;;
+            dialog.style.padding = &quot;10px 16px&quot;;
+            dialog.style.background = &quot;black&quot;;
+            dialog.style.border = &quot;2px solid white&quot;;
+            dialog.style.borderRadius = &quot;8px&quot;;
+            dialog.style.zIndex = &quot;10000&quot;;
+            dialog.style.textAlign = &quot;center&quot;;
+            dialog.style.color = &quot;white&quot;;
+            dialog.style.lineHeight = &quot;1.5&quot;;
+            dialog.style.wordBreak = &quot;break-word&quot;;
+            document.body.appendChild(dialog);
+            var rect = spirit.getBoundingClientRect();
+            dialog.style.left = (rect.left + rect.width / 2) + &quot;px&quot;;
+            dialog.style.top = (rect.top - dialog.offsetHeight - 12) + &quot;px&quot;;
+            dialogueIndex++;
+        } else {
+            dialogueIndex = 0;
+        }
+    };
+    moveSpirit();
+})();
+&lt;&lt;/script&gt;&gt;</tw-passagedata><tw-passagedata pid="2" name="Search" tags="" position="500,300" size="100,100">&lt;&lt;if $keyword is &quot;盖斯&quot;&gt;&gt;
 
 &lt;&lt;goto &quot;盖斯&quot;&gt;&gt;
 
@@ -2024,6 +2149,80 @@ if (!setup.viewedFiles.includes(&quot;线索&quot;)) {
 &lt;&lt;else&gt;&gt;
 &lt;em&gt;也许，等你了解得更多，再回看这些线索............&lt;/em&gt;
 &lt;&lt;/if&gt;&gt;
+
+&lt;&lt;link &quot;返回上一页&quot;&gt;&gt;&lt;&lt;run Engine.backward()&gt;&gt;&lt;&lt;/link&gt;&gt;
+&lt;&lt;link &quot;返回主页面&quot;&gt;&gt;&lt;&lt;goto &quot;Start&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata><tw-passagedata pid="50" name="关键词" tags="" position="500,0" size="100,100">&lt;&lt;script&gt;&gt;
+if (!setup.viewedFiles.includes(&quot;关键词&quot;)) {
+    setup.viewedFiles.push(&quot;关键词&quot;);
+}&lt;&lt;/script&gt;&gt;
+&lt;&lt;if !setup.searchFiles[passage()]&gt;&gt;&lt;&lt;set setup.searchFiles[passage()] = true&gt;&gt;&lt;&lt;/if&gt;&gt;
+&lt;span style=&quot;font-size: 2em;&quot;&gt;关键词&lt;/span&gt;
+
+出于安全性的考虑，我听取[[阿尔图]]们的建议，为部分内容设置了访问权限
+有些页面，只会在访问者对这个故事了解更深的时候，才会显示新的内容
+这样，便能保护那些尚未做好准备面对真相的人们，不直接对上深渊的目光
+
+然后......这个是阿尔图帮我设置的搜索精灵。只会在页面上乱跑，除了介绍基础操作没什么用处
+看上去像是羊，又像是刺猬，长得很奇怪&lt;em&gt;
+”可我觉得它臭着一张脸，闷闷不乐的样子和你很像啊！“其中一位阿尔图说道&lt;/em&gt;
+
+我觉得一点也不像
+&lt;style&gt;
+#guide-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+}
+
+#hedgegoat-sequence {
+    text-align: center;
+    flex-shrink: 0;
+}
+
+#hedgegoat-sequence .sequence-image {
+    width: 200px;
+    height: auto;
+}
+
+#guide-text {
+    width: 500px;
+    max-width: calc(100vw - 30px);
+    box-sizing: border-box;
+    padding: 14px 20px;
+    background: black;
+    border: 2px solid white;
+    border-radius: 8px;
+    text-align: center;
+    color: white;
+    line-height: 1.7;
+    word-break: break-word;
+}
+&lt;/style&gt;
+&lt;div id=&quot;guide-container&quot;&gt;
+    &lt;div id=&quot;hedgegoat-sequence&quot;&gt;
+        &lt;&lt;imageSequence&gt;&gt;
+        {
+            &quot;images&quot;: [
+                &quot;image/hedgegoat1.png&quot;,
+                &quot;image/hedgegoat.gif&quot;
+            ],
+            &quot;clickFrames&quot;: [0],
+            &quot;durations&quot;: [0, 0]
+        }
+        &lt;&lt;/imageSequence&gt;&gt;
+    &lt;/div&gt;    &lt;div id=&quot;guide-text&quot;&gt;
+        &lt;em&gt;上方搜索栏中输入关键词，回车确认查找相关内容&lt;br&gt;
+        点击蓝色的跳转按钮，可以前往新的页面&lt;br&gt;
+        访问过的页面会被记录，并在搜索结果中更新&lt;br&gt;
+        调查过程中，发现的深蓝提示词，可以输入下方的对话框&lt;br&gt;
+        所有的图像都可以点击；此外，某些页面需要特定条件解锁&lt;br&gt;
+        最后.....愿你在这个疯狂的世界中，找到你所渴望的正义.......&lt;br&gt;&lt;/em&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
 
 &lt;&lt;link &quot;返回上一页&quot;&gt;&gt;&lt;&lt;run Engine.backward()&gt;&gt;&lt;&lt;/link&gt;&gt;
 &lt;&lt;link &quot;返回主页面&quot;&gt;&gt;&lt;&lt;goto &quot;Start&quot;&gt;&gt;&lt;&lt;/link&gt;&gt;</tw-passagedata></tw-storydata>
